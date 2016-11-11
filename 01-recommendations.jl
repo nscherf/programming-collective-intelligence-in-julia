@@ -43,3 +43,35 @@ return 1/(1+ssq)
 end
 
 sim_distance(critics, "Lisa Rose", "Gene Seymour")
+
+#using Pearson correlation instead of Euclidean distance yields a more robust measure of similarity, it helps if data is not normalized...
+
+function sim_pearson(prefs::Dict, p1::String, p2::String)
+    si=Dict()
+    for item in keys(prefs[p1])
+        if haskey(prefs[p2], item)
+            si[item]=1
+        end
+    end
+    n = length(si)
+    if n==0
+        return 0
+    end    
+    v1 = [prefs[p1][it] for it in keys(si)]
+    v2 = [prefs[p2][it] for it in keys(si)]
+    sum1 = sum(v1)
+    sum2 = sum(v2)
+    sum1sq = sum(v1.^2)
+    sum2sq = sum(v2.^2)
+    psum = sum(v1.*v2)
+    num=psum-(sum1*sum2 / n)
+    den=sqrt((sum1sq - (sum1^2)/n)*(sum2sq-(sum2^2)/n))
+    if den==0
+        return 0
+    end
+    r=num/den
+    return r
+end
+
+#should be about 0.396
+sim_pearson(critics, "Lisa Rose", "Gene Seymour")
